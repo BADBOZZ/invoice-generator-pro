@@ -12,18 +12,9 @@ const {
   deleteRefreshToken
 } = require('../store/inMemoryDb');
 const { generateTokens, verifyRefreshToken, hashToken } = require('../utils/token');
+const { toUserResponse } = require('../utils/transformers');
 
 const router = express.Router();
-
-function buildUserPayload(user) {
-  return {
-    id: user.id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role || 'user'
-  };
-}
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -58,7 +49,7 @@ router.post('/register', async (req, res, next) => {
     });
 
     return res.status(201).json({
-      user: buildUserPayload(user),
+      user: toUserResponse(user),
       tokens: {
         accessToken,
         refreshToken,
@@ -100,7 +91,7 @@ router.post('/login', async (req, res, next) => {
     });
 
     return res.json({
-      user: buildUserPayload(user),
+      user: toUserResponse(user),
       tokens: {
         accessToken,
         refreshToken,
