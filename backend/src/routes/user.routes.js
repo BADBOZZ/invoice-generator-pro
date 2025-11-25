@@ -5,18 +5,18 @@ const userService = require('../services/userService');
 
 const router = express.Router();
 
-router.get('/me', authenticate, (req, res, next) => {
+router.get('/me', authenticate, async (req, res, next) => {
   try {
-    const user = userService.getProfile(req.user.id);
+    const user = await userService.getProfile(req.user.id);
     return res.json({ user });
   } catch (error) {
     next(error);
   }
 });
 
-router.patch('/me', authenticate, (req, res, next) => {
+router.patch('/me', authenticate, async (req, res, next) => {
   try {
-    const user = userService.updateProfile(req.user.id, req.body);
+    const user = await userService.updateProfile(req.user.id, req.body);
     return res.json({ user });
   } catch (error) {
     next(error);

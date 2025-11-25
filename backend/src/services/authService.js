@@ -1,16 +1,9 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const { v4: uuidv4 } = require('uuid');
 
 const config = require('../config/environment');
-const {
-  addUser,
-  findUserByEmail,
-  findUserById,
-  storeRefreshToken,
-  findRefreshToken,
-  deleteRefreshToken
-} = require('../store/inMemoryDb');
+const userModel = require('../models/userModel');
+const refreshTokenModel = require('../models/refreshTokenModel');
 const { generateTokens, verifyRefreshToken, hashToken } = require('../utils/token');
 const { toUserResponse } = require('../utils/transformers');
 const HttpError = require('../utils/httpError');
@@ -20,7 +13,7 @@ async function registerUser({ email, password, firstName, lastName }) {
     throw new HttpError(400, 'Email and password are required');
   }
 
-  const existing = findUserByEmail(email);
+  const existing = await userModel.findByEmail(email);
 
   if (existing) {
     throw new HttpError(409, 'Email already in use');
@@ -28,15 +21,11 @@ async function registerUser({ email, password, firstName, lastName }) {
 
   const passwordHash = await bcrypt.hash(password, config.bcryptRounds);
 
-  const user = addUser({
-    id: crypto.randomUUID ? crypto.randomUUID() : uuidv4(),
+  const user = await userModel.createUser({
     email,
     passwordHash,
-    firstName: firstName || '',
-    lastName: lastName || '',
-    role: 'user',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    firstName,
+    lastName
   });
 
   return issueTokens(user);
@@ -47,7 +36,7 @@ async function loginUser({ email, password }) {
     throw new HttpError(400, 'Email and password are required');
   }
 
-  const user = findUserByEmail(email);
+  const user = await userModel.findByEmail(email);
 
   if (!user) {
     throw new HttpError(401, 'Invalid credentials');
@@ -62,11 +51,12 @@ async function loginUser({ email, password }) {
   return issueTokens(user);
 }
 
-function issueTokens(user) {
+async function issueTokens(user) {
   const { accessToken, refreshToken, tokenId, refreshExpiresAt } = generateTokens(user);
 
-  storeRefreshToken(hashToken(refreshToken), {
+  await refreshTokenModel.saveRefreshToken({
     userId: user.id,
+    tokenHash: hashToken(refreshToken),
     tokenId,
     expiresAt: refreshExpiresAt
   });
@@ -82,7 +72,7 @@ function issueTokens(user) {
   };
 }
 
-function refreshSession(refreshToken) {
+async function refreshSession(refreshToken) {
   if (!refreshToken) {
     throw new HttpError(400, 'Refresh token is required');
   }
@@ -90,20 +80,20 @@ function refreshSession(refreshToken) {
   try {
     const payload = verifyRefreshToken(refreshToken);
     const hash = hashToken(refreshToken);
-    const stored = findRefreshToken(hash);
+    const stored = await refreshTokenModel.findByHash(hash);
 
     if (!stored || stored.userId !== payload.sub || stored.tokenId !== payload.tokenId) {
       throw new HttpError(401, 'Invalid refresh token');
     }
 
-    const user = findUserById(payload.sub);
+    const user = await userModel.findById(payload.sub);
 
     if (!user) {
-      deleteRefreshToken(hash);
+      await refreshTokenModel.deleteByHash(hash);
       throw new HttpError(401, 'User no longer exists');
     }
 
-    deleteRefreshToken(hash);
+    await refreshTokenModel.deleteByHash(hash);
 
     return issueTokens(user);
   } catch (error) {
@@ -114,9 +104,9 @@ function refreshSession(refreshToken) {
   }
 }
 
-function logoutSession(refreshToken) {
+async function logoutSession(refreshToken) {
   if (refreshToken) {
-    deleteRefreshToken(hashToken(refreshToken));
+    await refreshTokenModel.deleteByHash(hashToken(refreshToken));
   }
 }
 

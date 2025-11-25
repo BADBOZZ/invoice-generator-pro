@@ -30,9 +30,13 @@ router.post('/refresh', async (req, res, next) => {
   }
 });
 
-router.post('/logout', (req, res) => {
-  authService.logoutSession(req.body.refreshToken);
-  return res.json({ message: 'Logged out successfully' });
+router.post('/logout', async (req, res, next) => {
+  try {
+    await authService.logoutSession(req.body.refreshToken);
+    return res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;

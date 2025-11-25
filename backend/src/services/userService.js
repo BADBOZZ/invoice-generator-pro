@@ -1,9 +1,9 @@
-const { findUserById, updateUser } = require('../store/inMemoryDb');
+const userModel = require('../models/userModel');
 const { toUserResponse } = require('../utils/transformers');
 const HttpError = require('../utils/httpError');
 
-function getProfile(userId) {
-  const user = findUserById(userId);
+async function getProfile(userId) {
+  const user = await userModel.findById(userId);
 
   if (!user) {
     throw new HttpError(404, 'User not found');
@@ -12,7 +12,7 @@ function getProfile(userId) {
   return toUserResponse(user);
 }
 
-function updateProfile(userId, updates) {
+async function updateProfile(userId, updates) {
   const allowedFields = ['firstName', 'lastName', 'companyName', 'timezone'];
   const payload = {};
 
@@ -26,7 +26,7 @@ function updateProfile(userId, updates) {
     throw new HttpError(400, 'No updatable fields provided');
   }
 
-  const user = updateUser(userId, payload);
+  const user = await userModel.updateUser(userId, payload);
 
   if (!user) {
     throw new HttpError(404, 'User not found');

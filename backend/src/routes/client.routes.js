@@ -8,45 +8,45 @@ const router = express.Router();
 
 router.use(authenticate);
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const clients = clientService.getClients(req.user.id);
+    const clients = await clientService.getClients(req.user.id);
     res.json({ data: clients });
   } catch (error) {
     next(error);
   }
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    const client = clientService.createClient(req.user.id, req.body);
+    const client = await clientService.createClient(req.user.id, req.body);
     res.status(201).json({ data: client });
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/:clientId', (req, res, next) => {
+router.get('/:clientId', async (req, res, next) => {
   try {
-    const client = clientService.getClient(req.user.id, req.params.clientId);
+    const client = await clientService.getClient(req.user.id, req.params.clientId);
     res.json({ data: client });
   } catch (error) {
     next(error);
   }
 });
 
-router.put('/:clientId', (req, res, next) => {
+router.put('/:clientId', async (req, res, next) => {
   try {
-    const client = clientService.updateClient(req.user.id, req.params.clientId, req.body);
+    const client = await clientService.updateClient(req.user.id, req.params.clientId, req.body);
     res.json({ data: client });
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/:clientId', (req, res, next) => {
+router.delete('/:clientId', async (req, res, next) => {
   try {
-    clientService.removeClient(req.user.id, req.params.clientId);
+    await clientService.removeClient(req.user.id, req.params.clientId);
     res.status(204).send();
   } catch (error) {
     next(error);

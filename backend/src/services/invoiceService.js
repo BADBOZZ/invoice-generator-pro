@@ -1,13 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 
-const {
-  listInvoices,
-  addInvoice,
-  findInvoiceById,
-  updateInvoice,
-  deleteInvoice,
-  findClientById
-} = require('../store/inMemoryDb');
+const invoiceModel = require('../models/invoiceModel');
+const clientModel = require('../models/clientModel');
 const { toInvoiceResponse } = require('../utils/transformers');
 const HttpError = require('../utils/httpError');
 
@@ -26,26 +20,17 @@ function calculateTotals(lineItems = [], taxRate = 0) {
   return { subtotal, tax, total };
 }
 
-function listUserInvoices(userId, filters = {}) {
-  let invoices = listInvoices(userId);
-
-  if (filters.status) {
-    invoices = invoices.filter((invoice) => invoice.status === filters.status);
-  }
-
-  if (filters.clientId) {
-    invoices = invoices.filter((invoice) => invoice.clientId === filters.clientId);
-  }
-
+async function listUserInvoices(userId, filters = {}) {
+  const invoices = await invoiceModel.listByUser(userId, filters);
   return invoices.map(toInvoiceResponse);
 }
 
-function createInvoiceRecord(userId, payload) {
+async function createInvoiceRecord(userId, payload) {
   if (!payload.clientId || !Array.isArray(payload.lineItems) || !payload.lineItems.length) {
     throw new HttpError(400, 'Client and at least one line item are required');
   }
 
-  const client = findClientById(payload.clientId);
+  const client = await clientModel.findById(payload.clientId);
 
   if (!client || client.ownerId !== userId) {
     throw new HttpError(404, 'Client not found');
@@ -60,9 +45,7 @@ function createInvoiceRecord(userId, payload) {
 
   const totals = calculateTotals(lineItems, payload.taxRate ?? 0);
 
-  const invoice = addInvoice({
-    id: uuidv4(),
-    ownerId: userId,
+  const invoice = await invoiceModel.createInvoice(userId, {
     clientId: payload.clientId,
     number: payload.number || `INV-${Date.now()}`,
     status: payload.status || 'draft',
@@ -74,16 +57,14 @@ function createInvoiceRecord(userId, payload) {
     subtotal: totals.subtotal,
     tax: totals.tax,
     total: totals.total,
-    notes: payload.notes || '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    notes: payload.notes || ''
   });
 
   return toInvoiceResponse(invoice);
 }
 
-function getInvoiceRecord(userId, invoiceId) {
-  const invoice = findInvoiceById(invoiceId);
+async function getInvoiceRecord(userId, invoiceId) {
+  const invoice = await invoiceModel.findById(invoiceId);
 
   if (!invoice || invoice.ownerId !== userId) {
     throw new HttpError(404, 'Invoice not found');
@@ -92,8 +73,8 @@ function getInvoiceRecord(userId, invoiceId) {
   return toInvoiceResponse(invoice);
 }
 
-function updateInvoiceRecord(userId, invoiceId, payload) {
-  const invoice = findInvoiceById(invoiceId);
+async function updateInvoiceRecord(userId, invoiceId, payload) {
+  const invoice = await invoiceModel.findById(invoiceId);
 
   if (!invoice || invoice.ownerId !== userId) {
     throw new HttpError(404, 'Invoice not found');
@@ -112,7 +93,7 @@ function updateInvoiceRecord(userId, invoiceId, payload) {
 
   const totals = calculateTotals(lineItems, payload.taxRate ?? invoice.taxRate);
 
-  const updated = updateInvoice(invoice.id, {
+  const updated = await invoiceModel.updateInvoice(invoice.id, {
     clientId: payload.clientId ?? invoice.clientId,
     lineItems,
     taxRate: payload.taxRate ?? invoice.taxRate,
@@ -123,35 +104,36 @@ function updateInvoiceRecord(userId, invoiceId, payload) {
     issueDate: payload.issueDate ?? invoice.issueDate,
     dueDate: payload.dueDate ?? invoice.dueDate,
     currency: payload.currency ?? invoice.currency,
-    notes: payload.notes ?? invoice.notes
+    notes: payload.notes ?? invoice.notes,
+    number: payload.number ?? invoice.number
   });
 
   return toInvoiceResponse(updated);
 }
 
-function updateInvoiceStatus(userId, invoiceId, status) {
+async function updateInvoiceStatus(userId, invoiceId, status) {
   if (!VALID_STATUSES.includes(status)) {
     throw new HttpError(400, 'Invalid status');
   }
 
-  const invoice = findInvoiceById(invoiceId);
+  const invoice = await invoiceModel.findById(invoiceId);
 
   if (!invoice || invoice.ownerId !== userId) {
     throw new HttpError(404, 'Invoice not found');
   }
 
-  const updated = updateInvoice(invoice.id, { status });
+  const updated = await invoiceModel.updateInvoice(invoice.id, { status });
   return toInvoiceResponse(updated);
 }
 
-function removeInvoice(userId, invoiceId) {
-  const invoice = findInvoiceById(invoiceId);
+async function removeInvoice(userId, invoiceId) {
+  const invoice = await invoiceModel.findById(invoiceId);
 
   if (!invoice || invoice.ownerId !== userId) {
     throw new HttpError(404, 'Invoice not found');
   }
 
-  deleteInvoice(invoice.id);
+  await invoiceModel.deleteInvoice(invoice.id);
 }
 
 module.exports = {

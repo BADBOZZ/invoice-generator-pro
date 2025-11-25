@@ -1,7 +1,7 @@
 const { verifyAccessToken } = require('../utils/token');
-const { findUserById } = require('../store/inMemoryDb');
+const userModel = require('../models/userModel');
 
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -12,7 +12,7 @@ function authenticate(req, res, next) {
 
   try {
     const payload = verifyAccessToken(token);
-    const user = findUserById(payload.sub);
+    const user = await userModel.findById(payload.sub);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid token subject' });
