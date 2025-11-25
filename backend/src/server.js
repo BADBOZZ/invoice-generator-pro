@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const config = require('./config/environment');
 const requestLogger = require('./middleware/requestLogger');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+const apiRoutes = require('./routes');
 
 const app = express();
 
@@ -32,13 +33,7 @@ app.use(cookieParser());
 app.use(compression());
 app.use(requestLogger);
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString()
-  });
-});
+app.use('/api/v1', apiRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
