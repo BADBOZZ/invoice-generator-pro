@@ -10,7 +10,9 @@ const AppLayout = () => {
       <div className="flex flex-1 flex-col">
         <TopBar />
         <main className="flex-1 overflow-y-auto px-4 py-8 sm:px-8">
-          <Outlet />
+          <div className="mx-auto flex max-w-6xl flex-col gap-6">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
