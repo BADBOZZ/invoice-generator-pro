@@ -6,14 +6,14 @@
 - Added optimized Dockerfiles for backend/frontend plus docker-compose stack spanning Postgres, API, and web UI.
 - Created CI workflow (lint/test/build/coverage plus Docker validation) and deploy workflow for GHCR pushes.
 - Added coverage gating + unit tests for env/logger utilities and TypeScript lint configs for both apps.
+- Authored Docker Compose env overrides, deployment/migration/health-check scripts, and staged env templates for staging/production.
 
 ## Verification
 - `backend`: `npm run lint`, `npm run test`, `npm run test:ci`, `npm run build`
 - `frontend`: `npm run lint`, `npm run build`
+- `scripts`: `RETRIES=1 scripts/health-check.sh https://example.com`
 - `docker compose build backend frontend` → blocked (Docker CLI unavailable in agent workspace)
 
 ## Next Steps
-- Configure CI/CD workflows with quality gates.
-- Implement deployment scripts and infrastructure automation.
-- Add monitoring/logging stack.
-- Document deployment and troubleshooting procedures.
+- Add monitoring/logging stack (Prometheus/Grafana-style) and log shipping.
+- Document deployment flows, env management, and troubleshooting procedures.

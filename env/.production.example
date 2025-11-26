@@ -1,0 +1,18 @@
+# Docker Compose overrides for production
+COMPOSE_FILE=docker-compose.yml
+POSTGRES_DB=invoice_generator
+POSTGRES_USER=invoice_prod
+POSTGRES_PASSWORD=prod_pw_change_me
+
+# Application
+API_HOST=0.0.0.0
+API_PORT=4000
+DATABASE_URL=postgresql://invoice_prod:prod_pw_change_me@db:5432/invoice_generator?schema=public
+ALLOWED_ORIGINS=https://invoice-generator.example.com
+VITE_API_URL=https://api.invoice-generator.example.com
+
+# Container registry
+REGISTRY=ghcr.io
+IMAGE_TAG=production
+BACKEND_IMAGE=ghcr.io/your-org/invoice-generator-backend
+FRONTEND_IMAGE=ghcr.io/your-org/invoice-generator-frontend

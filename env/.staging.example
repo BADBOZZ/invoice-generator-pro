@@ -1,0 +1,18 @@
+# Docker Compose overrides for staging
+COMPOSE_FILE=docker-compose.yml
+POSTGRES_DB=invoice_generator
+POSTGRES_USER=invoice_staging
+POSTGRES_PASSWORD=staging_pw
+
+# Application
+API_HOST=0.0.0.0
+API_PORT=4000
+DATABASE_URL=postgresql://invoice_staging:staging_pw@db:5432/invoice_generator?schema=public
+ALLOWED_ORIGINS=https://staging.invoice-generator.example.com
+VITE_API_URL=https://staging-api.invoice-generator.example.com
+
+# Container registry
+REGISTRY=ghcr.io
+IMAGE_TAG=staging
+BACKEND_IMAGE=ghcr.io/your-org/invoice-generator-backend
+FRONTEND_IMAGE=ghcr.io/your-org/invoice-generator-frontend
