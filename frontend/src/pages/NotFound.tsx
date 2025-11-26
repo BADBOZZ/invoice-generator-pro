@@ -14,7 +14,7 @@ const NotFound = () => {
         the experience. Everything you need lives there.
       </p>
       <Link
-        to="/"
+        to="/app"
         className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-400"
       >
         Return home

@@ -19,7 +19,7 @@ const Landing = () => {
         </p>
         <div className="flex flex-wrap gap-4">
           <Link
-            to="/"
+            to="/app"
             className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-400"
           >
             Enter dashboard
