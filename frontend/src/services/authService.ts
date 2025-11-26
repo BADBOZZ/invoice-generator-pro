@@ -6,9 +6,21 @@ export type LoginPayload = {
   password: string
 }
 
+export type RegisterPayload = LoginPayload & {
+  name: string
+  company?: string
+}
+
 type AuthResponse = {
   user: typeof mockUser
   token: string
+}
+
+const fallbackResponse = (overrides?: Partial<typeof mockUser>): AuthResponse => {
+  const token = 'mock-token'
+  const user = { ...mockUser, ...overrides }
+  setAuthToken(token)
+  return { user, token }
 }
 
 export const authService = {
@@ -19,12 +31,17 @@ export const authService = {
       return data
     } catch (error) {
       console.warn('Auth API unavailable, using mock user.', error)
-      const token = 'mock-token'
-      setAuthToken(token)
-      return {
-        user: mockUser,
-        token,
-      }
+      return fallbackResponse({ email: payload.email })
+    }
+  },
+  async register(payload: RegisterPayload): Promise<AuthResponse> {
+    try {
+      const { data } = await apiClient.post<AuthResponse>('/auth/register', payload)
+      setAuthToken(data.token)
+      return data
+    } catch (error) {
+      console.warn('Register API unavailable, using mock user.', error)
+      return fallbackResponse({ name: payload.name, email: payload.email })
     }
   },
   async logout() {

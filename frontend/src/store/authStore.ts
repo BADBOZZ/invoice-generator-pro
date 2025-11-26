@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import { authService, type LoginPayload } from '@/services/authService'
+import { authService, type LoginPayload, type RegisterPayload } from '@/services/authService'
 
 type User = {
   id: string
@@ -18,6 +18,7 @@ type AuthState = {
   logout: () => void
   updateUser: (user: Partial<User>) => void
   authenticate: (payload: LoginPayload) => Promise<void>
+  register: (payload: RegisterPayload) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -44,6 +45,18 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         isAuthenticating: false,
         error: error instanceof Error ? error.message : 'Unable to login',
+      })
+    }
+  },
+  register: async (details) => {
+    set({ isAuthenticating: true, error: undefined })
+    try {
+      const response = await authService.register(details)
+      set({ user: response.user, token: response.token, isAuthenticating: false })
+    } catch (error) {
+      set({
+        isAuthenticating: false,
+        error: error instanceof Error ? error.message : 'Unable to register',
       })
     }
   },

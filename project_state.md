@@ -10,6 +10,7 @@
 - Axios-based service layer (`apiClient`, auth/invoice/dashboard services) with mock fallbacks keeps the UI resilient while backend endpoints are pending.
 - Feature pages (dashboard, invoices, quotes, contacts, payments, settings) now render rich data views backed by the service layer mocks.
 - Landing hero, layout container, and system styling received responsive/dark-mode polish with gradients, scroll tweaks, and mobile-friendly grids.
+- Authentication screens now feature validated forms powered by `react-hook-form` + `zod`, wired into the Zustand auth store with mock-backed service calls.
 - Backend artifacts referenced in requirements (`backend/src/server.js`, API docs) are not present in the workspace yet, so API interactions will rely on a configurable base URL and mock data utilities until backend integration becomes available.
 
 ### Planned Architecture
@@ -21,5 +22,4 @@
 - **Forms & Validation**: `react-hook-form` + `zod` schemas for authentication and CRUD flows.
 
 ### Next Steps
-1. Build final authentication workflows and forms.
-2. Re-run build/tests to ensure application compiles cleanly.
+1. Re-run build/tests to ensure application compiles cleanly.
