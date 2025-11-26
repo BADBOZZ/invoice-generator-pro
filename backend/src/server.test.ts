@@ -11,4 +11,12 @@ describe("health route", () => {
     expect(response.status).toBe(200);
     expect(response.body.status).toBe("ok");
   });
+
+  it("exposes prometheus metrics", async () => {
+    const prisma = {} as PrismaClient;
+    const app = createServer(prisma);
+    const response = await request(app).get("/metrics");
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("http_request_duration_seconds");
+  });
 });

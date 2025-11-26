@@ -7,6 +7,7 @@
 - Created CI workflow (lint/test/build/coverage plus Docker validation) and deploy workflow for GHCR pushes.
 - Added coverage gating + unit tests for env/logger utilities and TypeScript lint configs for both apps.
 - Authored Docker Compose env overrides, deployment/migration/health-check scripts, and staged env templates for staging/production.
+- Wired backend Prometheus metrics, Loki/Promtail logging, Prometheus+Grafana stack, and dashboards.
 
 ## Verification
 - `backend`: `npm run lint`, `npm run test`, `npm run test:ci`, `npm run build`
@@ -15,5 +16,4 @@
 - `docker compose build backend frontend` → blocked (Docker CLI unavailable in agent workspace)
 
 ## Next Steps
-- Add monitoring/logging stack (Prometheus/Grafana-style) and log shipping.
-- Document deployment flows, env management, and troubleshooting procedures.
+- Document deployment flows, environment management, and troubleshooting procedures.

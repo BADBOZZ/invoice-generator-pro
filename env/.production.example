@@ -16,3 +16,7 @@ REGISTRY=ghcr.io
 IMAGE_TAG=production
 BACKEND_IMAGE=ghcr.io/your-org/invoice-generator-backend
 FRONTEND_IMAGE=ghcr.io/your-org/invoice-generator-frontend
+
+# Monitoring
+GRAFANA_USER=admin
+GRAFANA_PASSWORD=rotate-me

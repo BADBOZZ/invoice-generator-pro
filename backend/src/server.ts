@@ -4,6 +4,7 @@ import helmet from "helmet";
 import type { PrismaClient } from "@prisma/client";
 import { registerHealthRoutes } from "./routes/health.js";
 import { logger } from "./lib/logger.js";
+import { metricsMiddleware, metricsHandler } from "./lib/metrics.js";
 
 export const createServer = (_prisma: PrismaClient) => {
   const app = express();
@@ -20,7 +21,10 @@ export const createServer = (_prisma: PrismaClient) => {
   );
   app.use(express.json());
 
+  app.use(metricsMiddleware);
+
   registerHealthRoutes(app);
+  app.get("/metrics", metricsHandler);
 
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     logger.error({ err }, "Unhandled error");
