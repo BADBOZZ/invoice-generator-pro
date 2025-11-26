@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import StatCard from '@/components/data/StatCard'
 import EmptyState from '@/components/feedback/EmptyState'
 import Button from '@/components/ui/Button'
@@ -7,6 +9,12 @@ import { useDataStore } from '@/store/dataStore'
 
 const DashboardPage = () => {
   const dashboard = useDataStore((state) => state.dashboard)
+  const fetchDashboard = useDataStore((state) => state.fetchDashboard)
+  const isLoading = useDataStore((state) => state.isLoading)
+
+  useEffect(() => {
+    fetchDashboard()
+  }, [fetchDashboard])
 
   return (
     <div className="space-y-8">
@@ -15,6 +23,16 @@ const DashboardPage = () => {
         subtitle="Track invoices, approvals, and payments from a single, intelligent workspace."
         ctaLabel="Create invoice"
       />
+
+      <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+        <span>Status</span>
+        <span
+          className="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] dark:border-white/10"
+          aria-live="polite"
+        >
+          {isLoading ? 'Syncing latest data…' : 'Up to date'}
+        </span>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {dashboard.stats.map((stat) => (

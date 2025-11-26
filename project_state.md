@@ -7,6 +7,7 @@
 - Navigation layouts (sidebar/top bar) and authenticated route scaffolding (`/app`, `/auth/*`) are in place with placeholder feature pages.
 - Core UI component library (buttons, inputs, cards, badges, stat cards, empty states) powers dashboard/invoice views with sample data.
 - Zustand stores (`authStore`, `uiStore`, `dataStore`) drive theming, navigation state, and dashboard/invoice metrics.
+- Axios-based service layer (`apiClient`, auth/invoice/dashboard services) with mock fallbacks keeps the UI resilient while backend endpoints are pending.
 - Backend artifacts referenced in requirements (`backend/src/server.js`, API docs) are not present in the workspace yet, so API interactions will rely on a configurable base URL and mock data utilities until backend integration becomes available.
 
 ### Planned Architecture
@@ -18,7 +19,6 @@
 - **Forms & Validation**: `react-hook-form` + `zod` schemas for authentication and CRUD flows.
 
 ### Next Steps
-1. Implement API service layer with axios client + mock fallbacks.
-2. Flesh out page experiences (Dashboard, Invoices, Quotes, Contacts, Payments, Settings, Auth).
-3. Layer responsive design, theming, and authentication UI polish.
-4. Re-run build/tests to ensure application compiles cleanly.
+1. Flesh out page experiences (Dashboard, Invoices, Quotes, Contacts, Payments, Settings, Auth).
+2. Layer responsive design, theming, and authentication UI polish.
+3. Re-run build/tests to ensure application compiles cleanly.
