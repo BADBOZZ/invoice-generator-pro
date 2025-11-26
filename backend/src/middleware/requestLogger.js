@@ -1,6 +1,15 @@
 const morgan = require('morgan');
+
 const config = require('../config/environment');
+const logger = require('../utils/logger');
 
-const format = config.nodeEnv === 'production' ? 'combined' : 'dev';
+const stream = {
+  write: (message) => logger.info(message.trim())
+};
 
-module.exports = morgan(format);
+const skip = () => config.nodeEnv === 'test';
+
+module.exports = morgan(
+  ':method :url :status :res[content-length] - :response-time ms',
+  { stream, skip }
+);

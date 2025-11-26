@@ -7,8 +7,10 @@ const cookieParser = require('cookie-parser');
 
 const config = require('./config/environment');
 const requestLogger = require('./middleware/requestLogger');
+const { metricsMiddleware, metricsHandler } = require('./middleware/metrics');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const apiRoutes = require('./routes');
+const logger = require('./utils/logger');
 
 const app = express();
 
@@ -32,7 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compression());
 app.use(requestLogger);
+app.use(metricsMiddleware);
 
+app.get('/metrics', metricsHandler);
+app.get('/api/v1/metrics', metricsHandler);
 app.use('/api/v1', apiRoutes);
 
 app.use(notFoundHandler);
@@ -41,8 +46,7 @@ app.use(errorHandler);
 const server = http.createServer(app);
 
 server.listen(config.port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`API server listening on port ${config.port} (${config.nodeEnv})`);
+  logger.info(`API server listening on port ${config.port}`, { env: config.nodeEnv });
 });
 
 module.exports = server;

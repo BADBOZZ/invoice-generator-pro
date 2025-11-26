@@ -1,5 +1,6 @@
 const config = require('../config/environment');
 const HttpError = require('../utils/httpError');
+const logger = require('../utils/logger');
 
 function notFoundHandler(req, _res, next) {
   next(new HttpError(404, `Not Found - ${req.originalUrl}`));
@@ -22,9 +23,10 @@ function errorHandler(err, req, res, next) {
     payload.errors = err.errors;
   }
 
-  if (config.nodeEnv !== 'test' && status >= 500) {
-    // eslint-disable-next-line no-console
-    console.error(err);
+  if (status >= 500) {
+    logger.error(err.message, { stack: err.stack, path: req.originalUrl });
+  } else if (status >= 400) {
+    logger.warn(err.message, { errors: payload.errors, path: req.originalUrl });
   }
 
   res.status(status).json(payload);
