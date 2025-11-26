@@ -1,11 +1,21 @@
+import EmptyState from '@/components/feedback/EmptyState'
+import PageHeader from '@/components/ui/PageHeader'
+
 const ContactsPage = () => {
   return (
-    <section className="space-y-3">
-      <h1 className="font-display text-3xl text-white">Contacts</h1>
-      <p className="text-slate-400">
-        Centralize customer, vendor, and supplier records with activity history.
-      </p>
-    </section>
+    <div className="space-y-6">
+      <PageHeader
+        title="Contacts"
+        subtitle="Every customer, vendor, and supplier in one collaborative timeline."
+        ctaLabel="Add contact"
+      />
+
+      <EmptyState
+        title="Contact timeline pending data"
+        description="Once the backend is ready, each timeline will outline invoices, payments, and key activities."
+        actionLabel="Upload CSV"
+      />
+    </div>
   )
 }
 
