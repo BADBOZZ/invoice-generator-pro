@@ -1,6 +1,12 @@
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 const invoiceService = require('../services/invoiceService');
+const {
+  createInvoiceSchema,
+  updateInvoiceSchema,
+  statusSchema
+} = require('../validation/invoiceSchemas');
 
 const router = express.Router();
 
@@ -15,7 +21,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', validate(createInvoiceSchema), async (req, res, next) => {
   try {
     const invoice = await invoiceService.createInvoice(req.user.id, req.body);
     res.status(201).json({ data: invoice });
@@ -33,7 +39,7 @@ router.get('/:invoiceId', async (req, res, next) => {
   }
 });
 
-router.put('/:invoiceId', async (req, res, next) => {
+router.put('/:invoiceId', validate(updateInvoiceSchema), async (req, res, next) => {
   try {
     const invoice = await invoiceService.updateInvoice(req.user.id, req.params.invoiceId, req.body);
     res.json({ data: invoice });
@@ -42,7 +48,10 @@ router.put('/:invoiceId', async (req, res, next) => {
   }
 });
 
-router.patch('/:invoiceId/status', async (req, res, next) => {
+router.patch(
+  '/:invoiceId/status',
+  validate(statusSchema),
+  async (req, res, next) => {
   try {
     const invoice = await invoiceService.updateInvoiceStatus(
       req.user.id,
@@ -53,7 +62,8 @@ router.patch('/:invoiceId/status', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+  }
+);
 
 router.delete('/:invoiceId', async (req, res, next) => {
   try {

@@ -2,7 +2,12 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 
 const { authenticate } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 const clientService = require('../services/clientService');
+const {
+  createClientSchema,
+  updateClientSchema
+} = require('../validation/clientSchemas');
 
 const router = express.Router();
 
@@ -17,7 +22,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', validate(createClientSchema), async (req, res, next) => {
   try {
     const client = await clientService.createClient(req.user.id, req.body);
     res.status(201).json({ data: client });
@@ -35,7 +40,7 @@ router.get('/:clientId', async (req, res, next) => {
   }
 });
 
-router.put('/:clientId', async (req, res, next) => {
+router.put('/:clientId', validate(updateClientSchema), async (req, res, next) => {
   try {
     const client = await clientService.updateClient(req.user.id, req.params.clientId, req.body);
     res.json({ data: client });

@@ -1,6 +1,8 @@
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
+const validate = require('../middleware/validate');
 const paymentService = require('../services/paymentService');
+const { createPaymentSchema } = require('../validation/paymentSchemas');
 
 const router = express.Router();
 
@@ -15,7 +17,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', validate(createPaymentSchema), async (req, res, next) => {
   try {
     const payment = await paymentService.recordPayment(req.user.id, req.body);
     res.status(201).json({ data: payment });

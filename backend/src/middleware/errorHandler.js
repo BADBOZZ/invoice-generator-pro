@@ -1,17 +1,17 @@
 const config = require('../config/environment');
+const HttpError = require('../utils/httpError');
 
-function notFoundHandler(req, res, next) {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
-  error.status = 404;
-  next(error);
+function notFoundHandler(req, _res, next) {
+  next(new HttpError(404, `Not Found - ${req.originalUrl}`));
 }
 
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
-  const status = err.status || 500;
+  const status = err instanceof HttpError ? err.status || 400 : err.status || 500;
   const payload = {
     status,
-    message: err.message || 'Internal Server Error'
+    message: err.message || 'Internal Server Error',
+    path: req.originalUrl
   };
 
   if (config.nodeEnv !== 'production' && err.stack) {
@@ -20,6 +20,11 @@ function errorHandler(err, req, res, next) {
 
   if (err.errors) {
     payload.errors = err.errors;
+  }
+
+  if (config.nodeEnv !== 'test' && status >= 500) {
+    // eslint-disable-next-line no-console
+    console.error(err);
   }
 
   res.status(status).json(payload);
