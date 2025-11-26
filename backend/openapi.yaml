@@ -1,0 +1,672 @@
+openapi: 3.0.3
+info:
+  title: Invoice Generator Pro API
+  version: 1.0.0
+  description: >
+    RESTful API for authentication, client management, invoices, and payments.
+    All secured endpoints require a Bearer access token.
+servers:
+  - url: http://localhost:4000/api/v1
+    description: Local development
+tags:
+  - name: Auth
+  - name: Users
+  - name: Clients
+  - name: Invoices
+  - name: Payments
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Refreshed tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Logged out
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    patch:
+      tags: [Users]
+      summary: Update profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+  /clients:
+    get:
+      tags: [Clients]
+      summary: List clients
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Client collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+    post:
+      tags: [Clients]
+      summary: Create client
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
+      responses:
+        '201':
+          description: Created client
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Client'
+  /clients/{clientId}:
+    parameters:
+      - $ref: '#/components/parameters/ClientId'
+    get:
+      tags: [Clients]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Client detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Client'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags: [Clients]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
+      responses:
+        '200':
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Client'
+    delete:
+      tags: [Clients]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /invoices:
+    get:
+      tags: [Invoices]
+      summary: List invoices
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, sent, paid, void]
+        - in: query
+          name: clientId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invoice'
+    post:
+      tags: [Invoices]
+      summary: Create invoice
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceRequest'
+      responses:
+        '201':
+          description: Created invoice
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+  /invoices/{invoiceId}:
+    parameters:
+      - $ref: '#/components/parameters/InvoiceId'
+    get:
+      tags: [Invoices]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Invoice detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags: [Invoices]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceUpdateRequest'
+      responses:
+        '200':
+          description: Updated invoice
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+    delete:
+      tags: [Invoices]
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /invoices/{invoiceId}/status:
+    patch:
+      tags: [Invoices]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/InvoiceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceStatusRequest'
+      responses:
+        '200':
+          description: Updated status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+  /payments:
+    get:
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: invoiceId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+    post:
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '201':
+          description: Recorded payment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+  /payments/{paymentId}:
+    get:
+      tags: [Payments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: Payment detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ConflictError:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  parameters:
+    ClientId:
+      name: clientId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    InvoiceId:
+      name: invoiceId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PaymentId:
+      name: paymentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        firstName:
+          type: string
+        lastName:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    AuthTokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: string
+        refreshExpiresAt:
+          type: string
+          format: date-time
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        tokens:
+          $ref: '#/components/schemas/AuthTokens'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        companyName:
+          type: string
+        timezone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    UserUpdateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        companyName:
+          type: string
+        timezone:
+          type: string
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        companyName:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        currency:
+          type: string
+        address:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ClientRequest:
+      type: object
+      required: [companyName]
+      properties:
+        companyName:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        currency:
+          type: string
+        address:
+          type: string
+        notes:
+          type: string
+    InvoiceLineItem:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        quantity:
+          type: number
+        unitPrice:
+          type: number
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+        number:
+          type: string
+        clientId:
+          type: string
+        status:
+          type: string
+          enum: [draft, sent, paid, void]
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        currency:
+          type: string
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+        subtotal:
+          type: number
+        tax:
+          type: number
+        total:
+          type: number
+    InvoiceRequest:
+      allOf:
+        - $ref: '#/components/schemas/InvoiceUpdateRequest'
+        - type: object
+          required: [clientId, lineItems]
+    InvoiceUpdateRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+        lineItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+        status:
+          type: string
+        taxRate:
+          type: number
+        currency:
+          type: string
+        notes:
+          type: string
+    InvoiceStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [draft, sent, paid, void]
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        invoiceId:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        method:
+          type: string
+        reference:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+    PaymentRequest:
+      type: object
+      required: [invoiceId, amount]
+      properties:
+        invoiceId:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        method:
+          type: string
+        reference:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object

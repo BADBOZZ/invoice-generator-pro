@@ -1,9 +1,13 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yaml');
 
 const config = require('./config/environment');
 const requestLogger = require('./middleware/requestLogger');
@@ -11,6 +15,23 @@ const { metricsMiddleware, metricsHandler } = require('./middleware/metrics');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const apiRoutes = require('./routes');
 const logger = require('./utils/logger');
+
+const openApiPath = path.join(__dirname, '..', 'openapi.yaml');
+let openApiDocument = {};
+
+try {
+  const rawSpec = fs.readFileSync(openApiPath, 'utf8');
+  openApiDocument = YAML.parse(rawSpec);
+} catch (error) {
+  logger.warn('Failed to load OpenAPI spec', { error: error.message });
+  openApiDocument = {
+    openapi: '3.0.0',
+    info: {
+      title: 'Invoice Generator API',
+      version: '1.0.0'
+    }
+  };
+}
 
 const app = express();
 
@@ -38,6 +59,7 @@ app.use(metricsMiddleware);
 
 app.get('/metrics', metricsHandler);
 app.get('/api/v1/metrics', metricsHandler);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.use('/api/v1', apiRoutes);
 
 app.use(notFoundHandler);
