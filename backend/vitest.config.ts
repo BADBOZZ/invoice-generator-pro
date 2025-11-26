@@ -5,8 +5,16 @@ export default defineConfig({
     environment: "node",
     globals: true,
     coverage: {
+      enabled: true,
       provider: "v8",
-      reporter: ["text", "lcov"]
+      reporter: ["text", "lcov"],
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        statements: 60,
+        branches: 50
+      },
+      exclude: ["src/index.ts"]
     }
   }
 });

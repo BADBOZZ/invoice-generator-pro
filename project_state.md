@@ -4,10 +4,12 @@
 - Initialized backend (Express + Prisma) service with linting, testing, and Prisma schema.
 - Scaffolded frontend (Vite + React + TS) with health display and shared styling.
 - Added optimized Dockerfiles for backend/frontend plus docker-compose stack spanning Postgres, API, and web UI.
+- Created CI workflow (lint/test/build/coverage plus Docker validation) and deploy workflow for GHCR pushes.
+- Added coverage gating + unit tests for env/logger utilities and TypeScript lint configs for both apps.
 
 ## Verification
-- `backend`: `npm run lint`, `npm run test`, and `npm run build`
-- `frontend`: `npm run build`
+- `backend`: `npm run lint`, `npm run test`, `npm run test:ci`, `npm run build`
+- `frontend`: `npm run lint`, `npm run build`
 - `docker compose build backend frontend` → blocked (Docker CLI unavailable in agent workspace)
 
 ## Next Steps
