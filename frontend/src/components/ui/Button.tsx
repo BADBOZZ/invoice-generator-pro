@@ -7,9 +7,11 @@ const baseStyles =
   'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60'
 
 const variantStyles = {
-  primary: 'bg-brand-500 text-white shadow-soft hover:bg-brand-400',
-  secondary: 'bg-white/10 text-white hover:bg-white/20',
-  ghost: 'text-white hover:bg-white/10',
+  primary: 'bg-brand-500 text-white shadow-soft hover:bg-brand-400 focus-visible:outline-brand-400',
+  secondary:
+    'bg-slate-900 text-white hover:bg-slate-800 focus-visible:outline-slate-500 dark:bg-white/10 dark:text-white dark:hover:bg-white/20',
+  ghost:
+    'text-slate-900 hover:bg-slate-100 focus-visible:outline-slate-400 dark:text-white dark:hover:bg-white/10',
 } as const
 
 const sizeStyles = {

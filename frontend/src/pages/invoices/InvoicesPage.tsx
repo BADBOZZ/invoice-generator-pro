@@ -2,8 +2,11 @@ import EmptyState from '@/components/feedback/EmptyState'
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import PageHeader from '@/components/ui/PageHeader'
+import { useDataStore } from '@/store/dataStore'
 
 const InvoicesPage = () => {
+  const pipeline = useDataStore((state) => state.dashboard.pipeline)
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -19,11 +22,7 @@ const InvoicesPage = () => {
           <CardDescription>Draft, awaiting approval, and sent statuses.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 text-sm md:grid-cols-3">
-          {[
-            { label: 'Drafts', value: '11', helper: 'Ready for review' },
-            { label: 'Awaiting approval', value: '7', helper: 'Client action needed' },
-            { label: 'Past due', value: '3', helper: 'Auto-reminders enabled' },
-          ].map((item) => (
+          {pipeline.map((item) => (
             <div key={item.label} className="rounded-2xl border border-white/5 bg-white/5 p-4">
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{item.label}</p>
               <p className="mt-2 text-2xl font-semibold text-white">{item.value}</p>

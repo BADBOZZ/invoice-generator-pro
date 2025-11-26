@@ -5,7 +5,7 @@ import TopBar from '@/components/navigation/TopBar'
 
 const AppLayout = () => {
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100">
+    <div className="flex min-h-screen bg-transparent text-inherit">
       <SidebarNav />
       <div className="flex flex-1 flex-col">
         <TopBar />

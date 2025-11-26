@@ -1,0 +1,29 @@
+import { create } from 'zustand'
+
+type User = {
+  id: string
+  name: string
+  email: string
+  avatar?: string
+}
+
+type AuthState = {
+  user: User | null
+  token: string | null
+  login: (payload: { user: User; token: string }) => void
+  logout: () => void
+  updateUser: (user: Partial<User>) => void
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: {
+    id: 'demo-user',
+    name: 'Ariana Steele',
+    email: 'ariana@invoicepro.app',
+  },
+  token: null,
+  login: ({ user, token }) => set({ user, token }),
+  logout: () => set({ user: null, token: null }),
+  updateUser: (partialUser) =>
+    set((state) => (state.user ? { user: { ...state.user, ...partialUser } } : state)),
+}))

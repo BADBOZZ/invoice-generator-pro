@@ -13,9 +13,9 @@ type StatCardProps = {
 }
 
 const trendConfig = {
-  up: { text: 'text-emerald-300', prefix: '+' },
-  down: { text: 'text-rose-300', prefix: '−' },
-  neutral: { text: 'text-slate-400', prefix: '' },
+  up: { text: 'text-emerald-600 dark:text-emerald-300', prefix: '+' },
+  down: { text: 'text-rose-500 dark:text-rose-300', prefix: '−' },
+  neutral: { text: 'text-slate-500 dark:text-slate-400', prefix: '' },
 }
 
 const StatCard = ({ label, value, helper, trendLabel, trend = 'neutral', icon: Icon }: StatCardProps) => (
@@ -29,7 +29,7 @@ const StatCard = ({ label, value, helper, trendLabel, trend = 'neutral', icon: I
       ) : null}
     </CardHeader>
     <div>
-      <p className="font-display text-3xl text-white">{value}</p>
+      <p className="font-display text-3xl text-slate-900 dark:text-white">{value}</p>
       {trendLabel ? (
         <p className={`mt-2 flex items-center gap-2 text-sm ${trendConfig[trend].text}`}>
           <Badge
